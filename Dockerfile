@@ -8,6 +8,10 @@ RUN apt-get update && apt-get install -y \
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
+# Add this after installing dependencies and enabling mod_rewrite
+COPY apache.conf /etc/apache2/sites-available/000-default.conf
+
+
 # Set working directory
 WORKDIR /var/www/html
 
