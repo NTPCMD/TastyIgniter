@@ -1,4 +1,4 @@
-FROM php:8.3.11-apache
+FROM php:8.3-apache
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -8,26 +8,20 @@ RUN apt-get update && apt-get install -y \
 # Enable Apache mod_rewrite
 RUN a2enmod rewrite
 
-# Add this after installing dependencies and enabling mod_rewrite
-COPY apache.conf /etc/apache2/sites-available/000-default.conf
-
-
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy code
+# Copy code and apache config
 COPY . .
+COPY apache.conf /etc/apache2/sites-available/000-default.conf
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer install
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Permissions
+# Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
-# Set Laravel environment
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-
-# Set the entrypoint
+# Set entrypoint
 CMD ["apache2-foreground"]
